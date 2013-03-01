@@ -1,0 +1,162 @@
+{% from "lib/filters.html" import ordering_filter %}
+
+{% set state_colors={
+  "PENDING": "orange",
+  "RECEIVED": "goldenRod",
+  "STARTED": "navny",
+  "RETRY": "saddleBrown",
+  "SUCCESS": "green",
+  "FAILURE": "red",
+} %}
+
+{% macro render_id(task, length=None) %}
+  <span style="font-family: Liberation Mono, monospace; font-size: 0.9em">
+    <a href="{{ url_for('view', task_id=task.id) }}">{{ task.id }}</a>
+  </span>
+{% endmacro %}
+
+{% macro render_name(task, length=None) %}
+  <span style="font-family: Liberation Mono, monospace; font-size: 0.9em">
+    {{ task.name }}
+  </span>
+{% endmacro %}
+
+{% macro render_state(task, length=None) %}
+  <span style="color: {{ state_colors.get(task.state, 'grey') }}">
+    {{ task.state }}
+  </span>
+{% endmacro %}
+
+{% macro render_args(task, length=None) %}
+  {% set length = length or 40 %}
+  {% if task.args and task.args.strip() != '[]' %}
+    {{ task.args | truncate(length=length) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro render_kwargs(task, length=None) %}
+  {% set length = length or 40 %}
+  {% if task.kwargs and task.kwargs.strip() != '{}' %}
+    {{ task.kwargs | truncate(length=length) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro render_result(task, length=None) %}
+  {% set length = length or 40 %}
+  {% if task.result %}
+    {{ task.result | truncate(length=length)}}
+  {% endif %}
+{% endmacro %}
+  
+{% macro render_timestamp(task, length=None) %}
+  {% set date, time = task.timestamp.split('T') %}
+  {% set time = time.rstrip('Z') %}
+  {{ date }}
+  <br/>
+  {{ time }}
+{% endmacro %}
+            
+{% macro render_runtime(task, length=None) %}
+  {% if task.runtime %}
+    {{ task.runtime | round(2) }}
+  {% endif %}
+{% endmacro %}
+
+{% macro render_exception(task, length=None) %}
+  {% if task.exception %}
+    <pre><code class="python">{{ task.exception }}</code></pre>
+  {% endif %}
+{% endmacro %}
+
+{% macro render_traceback(task, length=None) %}
+  {% if task.traceback %}
+    <pre><code class="python">{{ task.traceback }}</code></pre>
+  {% endif %}
+{% endmacro %}
+
+{% set task_field_to_macro = {
+  "id": render_id,
+  "name": render_name,
+  "state": render_state,
+  "args": render_args,
+  "kwargs": render_kwargs,
+  "result": render_result,
+  "timestamp": render_timestamp,
+  "runtime": render_runtime,
+  "exception": render_exception,
+  "traceback": render_traceback,
+} %}
+
+{% macro render_field(task, field, length=None) %}
+  {% if task_field_to_macro[field] %}
+    {{ task_field_to_macro[field](task, length=length) }}
+  {% else %}
+    {{ task[field] }}
+  {% endif %}
+{% endmacro %}
+  
+{% macro tasks_table(tasks, columns, query_filter=None) %}
+  <table class="table table-striped table-bordered">
+    <tr>
+      {% for column in columns %}
+        <th>
+          {% if column["__iter__"] %}
+            {% for col in column %}
+              {% set ordering, desc_first = False, False %}
+              {% if col["__iter__"] %}
+                {% set col, ordering, desc_first = col %}
+              {% endif %}
+              {% if ordering %}
+                {{ ordering_filter(col.capitalize(), col, query_filter.ordering_filter, desc_first=desc_first) }}
+              {%- else -%}
+                {{ col | capitalize }}
+              {%- endif %}
+              {%- if not loop.last %},{% endif %}
+            {% endfor %}
+          {% else %}
+            {{ column | capitalize }}
+          {% endif %}
+        </th>
+      {% endfor %}
+    </tr>
+    {% for task in tasks %}
+      <tr>
+        {% for column in columns %}
+          <td>
+            {% if column["__iter__"] %}
+              {% for col in column %}
+                {% if col["__iter__"] %}
+                  {% set col, ordering, desc_first = col %}
+                {% endif %}
+                {{ render_field(task, col) }}
+                {% if not loop.last %}<br>{% endif %}
+              {% endfor %}
+            {% else %}
+              {{ render_field(task, column) }}
+            {% endif %}
+          </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>  
+{% endmacro %}
+
+{% macro grouped_tasks(title, projects, grouped, columns, all_url_func=None) %}
+  <div class="span6 well">
+    <h4>{{ title }}</h4>
+    {% for proj in projects %}
+      {% set group = grouped.get_group(proj) %}
+      {% if group %}
+        <h6>{{ group.value }}
+          {% if all_url_func and group.ndocs %}
+            &nbsp;
+            <a href="{{ all_url_func(project=proj) }}">
+              All failed tasks ({{ group.ndocs }})
+            </a>
+          {% endif %}
+        </h6>
+        {{ tasks_table(group.docs, columns) }}
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endmacro %}

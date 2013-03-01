@@ -1,0 +1,40 @@
+{% macro facet_filter(title, filter) %}
+  <ul class="nav nav-list">
+    <li class="nav-header">
+      {{ title }}
+    </li>
+    {% for fv in filter.all_values %}
+      <li class="{{ 'active' if fv.selected else '' }}">
+        {% if fv.selected %}
+          {% set url = current_url(**{fv.filter_name: None, "page": None}) %}
+        {% else %}
+          {% set url = current_url(**{fv.filter_name: fv.value, "page": None}) %}
+        {% endif %}
+        <a href="{{ url }}">
+          {{ fv.title }} ({{ fv.count }})
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endmacro %}
+
+{% macro ordering_filter(title, name, filter, desc_first=False) %}
+  {% set asc_fv = filter.get_value(name) %}
+  {% set desc_fv = filter.get_value("-%s" % name) %}
+  {% if desc_fv.selected %}
+    {% set url = current_url(sort=name, page=None) %}
+  {% elif asc_fv.selected or desc_first %}
+    {% set url = current_url(sort='-%s' % name, page=None) %}
+  {% else %}
+    {% set url = current_url(sort=name, page=None) %}
+  {% endif %}
+  <a href="{{ url }}">
+    {% if asc_fv.selected %}
+      {{ title }}&#9650;
+    {% elif desc_fv.selected %}
+      {{ title }}&#9660;
+    {% else %}
+      {{ title }}
+    {% endif %}
+  </a>
+{% endmacro %}

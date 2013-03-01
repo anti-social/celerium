@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% from "lib/task.html" import grouped_tasks %}
+
+{% block body %}
+  {{ grouped_tasks("Failed tasks",
+                   config["CELERIUM_PROJECTS"],
+                   failed_tasks.results.get_grouped("project"),
+                   [("id", "name"), "state", "exception"],
+                   all_url_func=partial(url_for, "tasks", state="FAILURE")) }}
+  {{ grouped_tasks("Long tasks",
+                   config["CELERIUM_PROJECTS"],
+                   long_tasks.results.get_grouped("project"),
+                   [("id", "name"), "state", "timestamp", "runtime"]) }}
+{% endblock %}

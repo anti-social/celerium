@@ -1,0 +1,21 @@
+{% macro render_pagination(pagination) %}
+  <div class="pagination">
+    <ul>
+      {%- for page in pagination.iter_pages() %}
+        <li class="{{ 'active' if page == pagination.page else '' }}">
+          {% if page %}
+            {% if page == pagination.page %}
+              <a>{{ page }}</a>
+            {% elif page == 1 %}
+              <a href="{{ current_url(page=None) }}">{{ page }}</a>
+            {% else %}
+              <a href="{{ current_url(page=page) }}">{{ page }}</a>
+            {% endif %}
+          {% else %}
+            <span class="ellipsis">…</span>
+          {% endif %}
+        </li>
+      {%- endfor %}
+    </ul>
+  </div>
+{% endmacro %}

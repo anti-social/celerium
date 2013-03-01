@@ -1,0 +1,34 @@
+<!doctype html>
+<title>CElerium</title>
+<link rel="stylesheet" type="text/css"
+      href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css">
+<link rel="stylesheet" type="text/css"
+      href="http://yandex.st/highlightjs/7.3/styles/default.min.css">
+
+<div class="navbar">
+  <div class="navbar-inner">
+    <ul class="nav">
+      <li class="{{ 'active' if not project else '' }}">
+        <a href="{{ url_for('index') }}">Dashboard</a>
+      </li>
+      {% for proj in config["CELERIUM_PROJECTS"] %}
+        <li class="{{ 'active' if proj == project else '' }}">
+          <a href="{{ url_for('tasks', project=proj) }}">{{ proj }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row-fluid">
+    {% block body %}{% endblock %}
+  </div>
+</div>
+
+{% block scripts %}
+  <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
+  <script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+{% endblock %}

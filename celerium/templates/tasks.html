@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% from "lib/task.html" import tasks_table %}
+{% from "lib/filters.html" import facet_filter %}
+{% from "lib/pagination.html" import render_pagination %}
+
+{% block body %}
+  <div class="span9">
+    {{ tasks_table(pagination.items,
+                   [("id", "name"), "state", ("args", "kwargs"),
+                    "result", (("timestamp", True, True),), (("runtime", True, True),)],
+                   query_filter=query_filter) }}
+    {{ render_pagination(pagination) }}
+  </div>
+
+  <div class="span3">
+    <div class="well sidebar-nav">
+      <ul class="nav nav-list">
+        <li class="{{ 'active' if fixed_dt else '' }}">
+          {% if fixed_dt %}
+            {% set url = current_url(fixed_dt=None) %}
+          {% else %}
+            {% set url = current_url(fixed_dt=current_dt) %}
+          {% endif %}
+          <a href="{{ url }}">
+            {{ fixed_dt or "Fix datetime" }}
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="well sidebar-nav">
+      {{ facet_filter("State", query_filter.get_filter("state")) }}
+      {{ facet_filter("Timestamp", query_filter.get_filter("timestamp")) }}
+      {{ facet_filter("Runtime", query_filter.get_filter("runtime")) }}
+      {{ facet_filter("Module", query_filter.get_filter("module")) }}
+      {% if query_filter.get_filter("name") %}
+        {{ facet_filter("Name", query_filter.get_filter("name")) }}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
