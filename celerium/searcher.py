@@ -9,6 +9,20 @@ def try_fromtimestamp(timestamp):
     if timestamp:
        return datetime.fromtimestamp(timestamp)
 
+class WorkerSearcher(CommonSearcher):
+    type_value = 'Worker'
+    
+    @classmethod
+    def generate_indexing_doc(cls, worker, project):
+        doc = dict(worker)
+        doc['id'] = u'%s:%s' % (project, worker.hostname)
+        doc['name'] = worker.hostname
+        doc['project'] = project
+        if worker.heartbeats:
+            doc['last_heartbeat'] = try_fromtimestamp(worker.heartbeats[-1])
+        return doc
+
+
 class TaskSearcher(CommonSearcher):
     type_value = 'Task'
     

@@ -8,7 +8,7 @@ from celery.events.snapshot import Polaroid
 from celery.utils.timeutils import maybe_iso8601
 
 from .app import app
-from .searcher import TaskSearcher
+from .searcher import WorkerSearcher, TaskSearcher
 
 
 class CeleryLoader(BaseLoader):
@@ -25,7 +25,8 @@ class Camera(Polaroid):
         super(Camera, self).__init__(*args, **kwargs)
         self._workers_cache = {}
 
-        self.task_searcher = TaskSearcher('http://localhost:8983/solr/celery')
+        self.worker_searcher = WorkerSearcher(app.config['CELERIUM_SOLR_URL'])
+        self.task_searcher = TaskSearcher(app.config['CELERIUM_SOLR_URL'])
         self.project = os.environ.get('CELERIUM_PROJECT')
 
     def get_worker(self, hostname):
@@ -39,11 +40,20 @@ class Camera(Polaroid):
             # No new events since last snapshot
             return
 
-        from pprint import pformat
-        print "Workers: %s" % (pformat(state.workers, indent=4), )
-        print "Tasks: %s" % (pformat(state.tasks, indent=4), )
-        print "Total: %s events, %s tasks" % (
-            state.event_count, state.task_count)
+        # import pprint
+        # print "Workers: %s" % (pprint.pformat(state.workers, indent=4), )
+
+        # for worker in state.workers.values():
+        #     pprint.pprint(dict(worker))
+        # print "Tasks: %s" % (pprint.pformat(state.tasks, indent=4), )
+        # print "Total: %s events, %s tasks" % (
+        #     state.event_count, state.task_count)
+
+        if state.workers:
+            self.worker_searcher.add(
+                map(partial(WorkerSearcher.generate_indexing_doc, project=self.project),
+                    state.workers.values()),
+                commit=False)
 
         if state.tasks:
             self.task_searcher.add(

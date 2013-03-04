@@ -101,12 +101,21 @@
    <field name="_type" type="string" indexed="true" stored="true" required="true"/>
    <field name="id" type="string" indexed="true" stored="true" required="true"/>
    <field name="project" type="string" indexed="true" stored="true" required="true"/>
-   <field name="worker" type="string" indexed="true" stored="true"/>
-
    <field name="name" type="string" indexed="true" stored="true" required="true"/>
+
+   <!-- worker fields -->
+   <field name="active" type="tint" indexed="true" stored="true"/>
+   <field name="processed" type="tint" indexed="true" stored="true"/>
+   <field name="freq" type="float" indexed="true" stored="true"/>
+   <field name="heartbeats" type="float" indexed="true" stored="true" multiValued="true"/>
+   <field name="last_heartbeat" type="date" indexed="true" stored="true"/>
+   <!-- -->
+   
+
+   <field name="worker" type="string" indexed="true" stored="true"/>
    <field name="module" type="string" indexed="true" stored="true"/>
-   <field name="state" type="string" indexed="true" stored="true" required="true"/>
-   <field name="timestamp" type="date" indexed="true" stored="true" required="true"/>
+   <field name="state" type="string" indexed="true" stored="true"/>
+   <field name="timestamp" type="date" indexed="true" stored="true"/>
 
    <field name="args" type="string" indexed="true" stored="true"/>
    <field name="kwargs" type="string" indexed="true" stored="true"/>

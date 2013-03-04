@@ -74,6 +74,14 @@
   {% endif %}
 {% endmacro %}
 
+{% macro render_last_heartbeat(task, length=None) %}
+  {% set date, time = task.last_heartbeat.split('T') %}
+  {% set time = time.rstrip('Z') %}
+  {{ date }}
+  <br/>
+  {{ time }}
+{% endmacro %}
+
 {% set task_field_to_macro = {
   "id": render_id,
   "name": render_name,
@@ -85,6 +93,7 @@
   "runtime": render_runtime,
   "exception": render_exception,
   "traceback": render_traceback,
+  "last_heartbeat": render_last_heartbeat,
 } %}
 
 {% macro render_field(task, field, length=None) %}
@@ -141,22 +150,25 @@
   </table>  
 {% endmacro %}
 
-{% macro grouped_tasks(title, projects, grouped, columns, all_url_func=None) %}
-  <div class="span6 well">
+{% macro grouped_tasks(title, projects, grouped, columns, all_url_func=None,
+                       outer_span=6, inner_span=12) %}
+  <div class="span{{ outer_span }} well">
     <h4>{{ title }}</h4>
     {% for proj in projects %}
-      {% set group = grouped.get_group(proj) %}
-      {% if group %}
-        <h6>{{ group.value }}
-          {% if all_url_func and group.ndocs %}
-            &nbsp;
-            <a href="{{ all_url_func(project=proj) }}">
-              All failed tasks ({{ group.ndocs }})
-            </a>
-          {% endif %}
-        </h6>
-        {{ tasks_table(group.docs, columns) }}
-      {% endif %}
+      <div class="span{{ inner_span }}" style="margin-left:10px">
+        {% set group = grouped.get_group(proj) %}
+        {% if group %}
+          <h6>{{ group.value }}
+            {% if all_url_func and group.ndocs %}
+              &nbsp;
+              <a href="{{ all_url_func(project=proj) }}">
+                All failed tasks ({{ group.ndocs }})
+              </a>
+            {% endif %}
+          </h6>
+          {{ tasks_table(group.docs, columns) }}
+        {% endif %}
+      </div>
     {% endfor %}
   </div>
 {% endmacro %}

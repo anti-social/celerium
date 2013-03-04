@@ -29,6 +29,7 @@
       </ul>
     </div>
     <div class="well sidebar-nav">
+      {{ facet_filter("Worker", query_filter.get_filter("worker")) }}
       {{ facet_filter("State", query_filter.get_filter("state")) }}
       {{ facet_filter("Timestamp", query_filter.get_filter("timestamp")) }}
       {{ facet_filter("Runtime", query_filter.get_filter("runtime")) }}

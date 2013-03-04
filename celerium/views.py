@@ -10,24 +10,32 @@ from solar.contrib.flask.pagination import Pagination
 
 from .app import app
 from .util import current_url
-from .searcher import TaskSearcher
+from .searcher import WorkerSearcher, TaskSearcher
+
 
 @app.route('/')
 def index():
-    searcher = TaskSearcher(app.config['CELERIUM_SOLR_URL'])
+    worker_searcher = WorkerSearcher(app.config['CELERIUM_SOLR_URL'])
+    workers_query = (
+        worker_searcher.search()
+        .group('project', limit=20)
+        .order_by('id'))
+    
+    task_searcher = TaskSearcher(app.config['CELERIUM_SOLR_URL'])
     search_fail = (
-        searcher.search()
+        task_searcher.search()
         .filter(state='FAILURE')
         .group('project', limit=4)
         .order_by('-timestamp')
         .limit(len(app.config['CELERIUM_PROJECTS'])))
     search_long = (
-        searcher.search()
+        task_searcher.search()
         .filter(state='SUCCESS')
         .group('project', limit=4)
         .order_by('-runtime')
         .limit(len(app.config['CELERIUM_PROJECTS'])))
     return render_template('index.html',
+                           workers=workers_query,
                            failed_tasks=search_fail,
                            long_tasks=search_long)
 
@@ -55,6 +63,7 @@ def tasks(project):
             fixed_dt = None
 
     qf = QueryFilter()
+    qf.add_filter(FacetFilter('worker', mincount=0))
     qf.add_filter(FacetFilter('state', mincount=0))
     qf.add_filter(FacetFilter('module', mincount=1))
     if 'module' in request.args:

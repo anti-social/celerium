@@ -3,13 +3,23 @@
 {% from "lib/task.html" import grouped_tasks %}
 
 {% block body %}
-  {{ grouped_tasks("Failed tasks",
-                   config["CELERIUM_PROJECTS"],
-                   failed_tasks.results.get_grouped("project"),
-                   [("id", "name"), "state", "exception"],
-                   all_url_func=partial(url_for, "tasks", state="FAILURE")) }}
-  {{ grouped_tasks("Long tasks",
-                   config["CELERIUM_PROJECTS"],
-                   long_tasks.results.get_grouped("project"),
-                   [("id", "name"), "state", "timestamp", "runtime"]) }}
+  <div class="row-fluid">
+    {{ grouped_tasks("Workers",
+                     config["CELERIUM_PROJECTS"],
+                     workers.results.get_grouped("project"),
+                     ["name", "processed", "last_heartbeat"],
+                     outer_span=12, inner_span=3) }}
+  </div>
+
+  <div class="row-fluid">
+    {{ grouped_tasks("Failed tasks",
+                     config["CELERIUM_PROJECTS"],
+                     failed_tasks.results.get_grouped("project"),
+                     [("id", "name"), "state", "exception"],
+                     all_url_func=partial(url_for, "tasks", state="FAILURE")) }}
+    {{ grouped_tasks("Long tasks",
+                     config["CELERIUM_PROJECTS"],
+                     long_tasks.results.get_grouped("project"),
+                     [("id", "name"), "state", "timestamp", "runtime"]) }}
+  </div>
 {% endblock %}
