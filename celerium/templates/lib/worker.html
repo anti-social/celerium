@@ -1,0 +1,72 @@
+{% macro render_name(worker, length=None) %}
+  <span style="font-family: Liberation Mono, monospace; font-size: 0.9em">
+    <a href="{{ url_for('tasks', project=worker.project, worker=worker.name) }}">
+      {{ worker.name }}
+    </a>
+  </span>
+{% endmacro %}
+
+{% macro render_last_heartbeat(worker, length=None) %}
+  {% set date, time = worker.last_heartbeat.split('T') %}
+  {% set time = time.rstrip('Z') %}
+  {{ date }}
+  <br/>
+  {{ time }}
+{% endmacro %}
+
+{% set worker_field_to_macro = {
+  "name": render_name,
+  "last_heartbeat": render_last_heartbeat,
+} %}
+
+{% macro render_field(task, field, length=None) %}
+  {% if worker_field_to_macro[field] %}
+    {{ worker_field_to_macro[field](task, length=length) }}
+  {% else %}
+    {{ task[field] }}
+  {% endif %}
+{% endmacro %}
+  
+{% macro workers_table(workers, columns, query_filter=None) %}
+  <table class="table table-striped table-bordered">
+    <tr>
+      {% for column in columns %}
+        <th>
+          {{ column | capitalize }}
+        </th>
+      {% endfor %}
+    </tr>
+    {% for worker in workers %}
+      <tr style="background-color:{{ 'lightGreen' if worker.instance.alive else 'pink' }}">
+        {% for column in columns %}
+          <td>
+            {{ render_field(worker, column) }}
+          </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>  
+{% endmacro %}
+
+{% macro grouped_workers(title, projects, grouped, columns, all_url_func=None,
+                         outer_width="100%", inner_width="100%") %}
+  <div class="span well" style="width:{{ outer_width }}">
+    <h4>{{ title }}</h4>
+    {% for proj in projects %}
+      {% set group = grouped.get_group(proj) %}
+      {% if group %}
+        <div class="span" style="margin-left:10px; width:{{ inner_width }}">
+          <h6>{{ group.value }}
+            {% if all_url_func and group.ndocs %}
+              &nbsp;
+              <a href="{{ all_url_func(project=proj) }}">
+                All failed tasks ({{ group.ndocs }})
+              </a>
+            {% endif %}
+          </h6>
+          {{ workers_table(group.docs, columns) }}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endmacro %}

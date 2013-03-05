@@ -102,12 +102,13 @@
    <field name="id" type="string" indexed="true" stored="true" required="true"/>
    <field name="project" type="string" indexed="true" stored="true" required="true"/>
    <field name="name" type="string" indexed="true" stored="true" required="true"/>
+   <field name="clock" type="int" indexed="true" stored="true"/>
 
    <!-- worker fields -->
-   <field name="active" type="tint" indexed="true" stored="true"/>
-   <field name="processed" type="tint" indexed="true" stored="true"/>
+   <field name="active" type="int" indexed="true" stored="true"/>
+   <field name="processed" type="int" indexed="true" stored="true"/>
    <field name="freq" type="float" indexed="true" stored="true"/>
-   <field name="heartbeats" type="float" indexed="true" stored="true" multiValued="true"/>
+   <field name="heartbeats" type="double" indexed="true" stored="true" multiValued="true"/>
    <field name="last_heartbeat" type="date" indexed="true" stored="true"/>
    <!-- -->
    
@@ -115,31 +116,31 @@
    <field name="worker" type="string" indexed="true" stored="true"/>
    <field name="module" type="string" indexed="true" stored="true"/>
    <field name="state" type="string" indexed="true" stored="true"/>
-   <field name="timestamp" type="date" indexed="true" stored="true"/>
+   <field name="timestamp" type="tdate" indexed="true" stored="true"/>
 
    <field name="args" type="string" indexed="true" stored="true"/>
    <field name="kwargs" type="string" indexed="true" stored="true"/>
    <field name="result" type="string" indexed="true" stored="true"/>
    
-   <field name="failed" type="boolean" indexed="true" stored="true"/>
-   <field name="retried" type="boolean" indexed="true" stored="true"/>
-   <field name="revoked" type="boolean" indexed="true" stored="true"/>
-   
    <field name="exchange" type="string" indexed="true" stored="true"/>
    <field name="routing_key" type="string" indexed="true" stored="true"/>
 
-   <field name="retries" type="tint" indexed="true" stored="true"/>
+   <field name="retries" type="int" indexed="true" stored="true"/>
    <field name="runtime" type="tfloat" indexed="true" stored="true"/>
 
    <field name="exception" type="text_en" indexed="true" stored="true"/>
    <field name="traceback" type="text_en" indexed="true" stored="true"/>
    
    <field name="eta" type="date" indexed="true" stored="true"/>
+   <field name="expires" type="date" indexed="true" stored="true"/>
+
    <field name="sent" type="date" indexed="true" stored="true"/>
    <field name="received" type="date" indexed="true" stored="true"/>
    <field name="started" type="date" indexed="true" stored="true"/>
    <field name="succeeded" type="date" indexed="true" stored="true"/>
-   <field name="expires" type="date" indexed="true" stored="true"/>
+   <field name="failed" type="date" indexed="true" stored="true"/>
+   <field name="retried" type="date" indexed="true" stored="true"/>
+   <field name="revoked" type="date" indexed="true" stored="true"/>
 
    <field name="_version_" type="long" indexed="true" stored="true"/> 
 

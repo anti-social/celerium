@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 
+{% from "lib/worker.html" import grouped_workers %}
 {% from "lib/task.html" import grouped_tasks %}
 
 {% block body %}
   <div class="row-fluid">
-    {{ grouped_tasks("Workers",
-                     config["CELERIUM_PROJECTS"],
-                     workers.results.get_grouped("project"),
-                     ["name", "processed", "last_heartbeat"],
-                     outer_span=12, inner_span=3) }}
+    {{ grouped_workers("Workers",
+                       config["CELERIUM_PROJECTS"],
+                       workers.results.get_grouped("project"),
+                       ["name", "processed", "last_heartbeat"],
+                       outer_width="100%", inner_width="19%") }}
   </div>
 
   <div class="row-fluid">
@@ -16,10 +17,13 @@
                      config["CELERIUM_PROJECTS"],
                      failed_tasks.results.get_grouped("project"),
                      [("id", "name"), "state", "exception"],
+                     all_url_title="All failed tasks",
                      all_url_func=partial(url_for, "tasks", state="FAILURE")) }}
     {{ grouped_tasks("Long tasks",
                      config["CELERIUM_PROJECTS"],
                      long_tasks.results.get_grouped("project"),
-                     [("id", "name"), "state", "timestamp", "runtime"]) }}
+                     [("id", "name"), "state", "timestamp", "runtime"],
+                     all_url_title="All long tasks",
+                     all_url_func=partial(url_for, "tasks", state="SUCCESS", sort="-runtime")) }}
   </div>
 {% endblock %}
