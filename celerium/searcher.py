@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from solar import CommonSearcher
-from solar.result import Document
+from solar.document import Document
 
 from celery.events.state import Worker as _Worker, Task
 from celery.utils.timeutils import maybe_iso8601
@@ -20,9 +20,6 @@ class Worker(_Worker):
     expire_window = 400
     
 class WorkerDocument(Document):
-    def __init__(self, raw_doc, _results=None):
-        super(WorkerDocument, self).__init__(raw_doc, _results=_results)
-
     @property
     def instance(self):
         if not hasattr(self, '_instance'):
