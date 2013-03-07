@@ -40,16 +40,15 @@ class Camera(Polaroid):
             # No new events since last snapshot
             return
 
-        import pprint
+        # import pprint
         # print "Workers: %s" % (pprint.pformat(state.workers, indent=4), )
         # print "Tasks: %s" % (pprint.pformat(state.tasks, indent=4), )
         # print "Total: %s events, %s tasks" % (
         #     state.event_count, state.task_count)
-
-        for worker in state.workers.values():
-            pprint.pprint(dict(worker))
-        for task in state.tasks.values():
-            pprint.pprint(dict(task))
+        # for worker in state.workers.values():
+        #     pprint.pprint(dict(worker))
+        # for task in state.tasks.values():
+        #     pprint.pprint(dict(task))
 
         if state.workers:
             self.worker_searcher.add(
