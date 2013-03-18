@@ -22,19 +22,11 @@ class Camera(Polaroid):
     clear_after = True
 
     def __init__(self, *args, **kwargs):
-        super(Camera, self).__init__(*args, **kwargs)
-        self._workers_cache = {}
-
+        self.project = kwargs.pop('project', os.environ.get('CELERIUM_PROJECT'))
         self.worker_searcher = WorkerSearcher(app.config['CELERIUM_SOLR_URL'])
         self.task_searcher = TaskSearcher(app.config['CELERIUM_SOLR_URL'])
-        self.project = os.environ.get('CELERIUM_PROJECT')
+        super(Camera, self).__init__(*args, **kwargs)
 
-    def get_worker(self, hostname):
-        if hostname not in self._workers_cache:
-            self._workers_cache[hostname] = WorkerState.objects.get(
-                hostname=hostname)
-        return self._workers_cache[hostname]
-    
     def on_shutter(self, state):
         if not state.event_count:
             # No new events since last snapshot
