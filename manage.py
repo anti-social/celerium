@@ -6,7 +6,7 @@ from celerium.app import app
 manager = Manager(app)
 
 @manager.command
-def events(project=None, frequency=5):
+def events(project=None, frequency=10):
     from functools import partial
     from celery.app.base import Celery
     from celery.bin.celeryev import EvCommand
