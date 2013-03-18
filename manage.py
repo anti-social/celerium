@@ -23,10 +23,13 @@ def events(project=None, frequency=10):
 
 
 @manager.command
-def clean_old_events():
+def clean_old_events(days=6):
     from celerium.searcher import task_searcher
 
-    task_searcher.delete(timestamp__lte='NOW/DAY-6DAYS')
+    days = int(days)
+    if days < 0:
+        raise ValueError('Days must be great or equal zero')
+    task_searcher.delete(timestamp__lte='NOW/DAY-%sDAYS' % int(days))
 
 
 if __name__ == "__main__":
