@@ -1,9 +1,5 @@
 DEBUG = True
 
-CELERIUM_SERVER_ADDRESS = '0.0.0.0'
-# CELERIUM_SERVER_ADDRESS = '127.0.0.1'
-CELERIUM_SERVER_PORT = 5500
-
 CELERIUM_SOLR_URL = 'http://localhost:8983/solr/celery'
 
 CELERIUM_PROJECTS = ['EXample.com', 'Prom.ua', 'Tiu.ru', 'Deal.by', 'Satu.kz']
