@@ -8,7 +8,7 @@ from celery.events.snapshot import Polaroid
 from celery.utils.timeutils import maybe_iso8601
 
 from .app import app
-from .searcher import WorkerSearcher, TaskSearcher
+from .searcher import worker_searcher, task_searcher
 
 
 class CeleryLoader(BaseLoader):
@@ -23,8 +23,6 @@ class Camera(Polaroid):
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', os.environ.get('CELERIUM_PROJECT'))
-        self.worker_searcher = WorkerSearcher(app.config['CELERIUM_SOLR_URL'])
-        self.task_searcher = TaskSearcher(app.config['CELERIUM_SOLR_URL'])
         super(Camera, self).__init__(*args, **kwargs)
 
     def on_shutter(self, state):
@@ -43,13 +41,13 @@ class Camera(Polaroid):
         #     pprint.pprint(dict(task))
 
         if state.workers:
-            self.worker_searcher.add(
-                map(partial(WorkerSearcher.generate_indexing_doc, project=self.project),
+            worker_searcher.add(
+                map(partial(worker_searcher.generate_indexing_doc, project=self.project),
                     state.workers.values()),
                 commit=False)
 
         if state.tasks:
-            self.task_searcher.add(
-                map(partial(TaskSearcher.generate_indexing_doc, project=self.project),
+            task_searcher.add(
+                map(partial(task_searcher.generate_indexing_doc, project=self.project),
                     state.tasks.values()),
                 commit=False)

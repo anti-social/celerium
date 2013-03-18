@@ -25,10 +25,9 @@ def events(project=None, frequency=5):
 @manager.command
 def clean_old_events():
     from datetime import datetime, timedelta
-    from celerium.searcher import TaskSearcher
+    from celerium.searcher import task_searcher
 
-    searcher = TaskSearcher(app.config['CELERIUM_SOLR_URL'])
-    searcher.delete(timestamp__lte=datetime.now() - timedelta(days=7))
+    task_searcher.delete(timestamp__lte=datetime.now() - timedelta(days=7))
 
 if __name__ == "__main__":
     manager.run()

@@ -6,6 +6,8 @@ from solar.document import Document
 from celery.events.state import Worker as _Worker, Task
 from celery.utils.timeutils import maybe_iso8601
 
+from .app import app
+
 
 def try_fromtimestamp(timestamp):
     if timestamp:
@@ -66,3 +68,7 @@ class TaskSearcher(CommonSearcher):
         if doc['worker']:
             doc['worker'] = doc['worker'].hostname
         return doc
+
+
+worker_searcher = WorkerSearcher(app.config['CELERIUM_SOLR_URL'])
+task_searcher = TaskSearcher(app.config['CELERIUM_SOLR_URL'])

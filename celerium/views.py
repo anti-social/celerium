@@ -10,18 +10,16 @@ from solar.contrib.flask.pagination import Pagination
 
 from .app import app
 from .util import current_url
-from .searcher import WorkerSearcher, TaskSearcher
+from .searcher import worker_searcher, task_searcher
 
 
 @app.route('/')
 def index():
-    worker_searcher = WorkerSearcher(app.config['CELERIUM_SOLR_URL'])
     workers_query = (
         worker_searcher.search()
         .group('project', limit=20)
         .order_by('id'))
     
-    task_searcher = TaskSearcher(app.config['CELERIUM_SOLR_URL'])
     search_fail = (
         task_searcher.search()
         .filter(state='FAILURE')
@@ -49,9 +47,8 @@ def tasks(project):
     except ValueError:
         page = 1
 
-    searcher = TaskSearcher(app.config['CELERIUM_SOLR_URL'])
     search_query = (
-        searcher.search()
+        task_searcher.search()
         .filter(project=project))
 
     fixed_dt = request.args.get('fixed_dt')
@@ -110,6 +107,5 @@ def tasks(project):
 
 @app.route('/view/<task_id>')
 def view(task_id):
-    searcher = TaskSearcher(app.config['CELERIUM_SOLR_URL'])
-    task = searcher.get(id=task_id)
+    task = task_searcher.get(id=task_id)
     return render_template('view.html', project=task.project, task=task)
