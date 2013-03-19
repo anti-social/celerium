@@ -1,9 +1,15 @@
-from flask.ext.script import Manager, Server
+# Fix runserver command with reloader
+import os
+import sys
+sys.path[:0] = [os.path.split(os.path.dirname(__file__))[0]]
 
-from app import app
+from flask.ext.script import Manager
+
+from celerium.app import app
 
 
 manager = Manager(app)
+
 
 @manager.command
 def events(project=None, frequency=10):

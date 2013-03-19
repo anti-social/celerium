@@ -1,7 +1,8 @@
 from flask import Flask
 app = Flask('celerium')
 
-app.config.from_pyfile('config.py')
+from . import config
+app.config.from_object(config)
 app.config.from_envvar('CELERIUM_SETTINGS', silent=True)
 
 from .util import current_url

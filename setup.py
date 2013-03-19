@@ -15,15 +15,18 @@ setup(
     version = "0.1",
     author = "Alexander Koval",
     author_email = "kovalidis@gmail.com",
-    description = ("A library to use solr in python projects."),
+    description = ("Celery events monitoring web interface."),
     license = "BSD",
     keywords = "celery events monitoring solr solar",
     url = "https://github.com/anti-social/celerium",
     packages=find_packages(exclude=["tests.*", "tests"]),
+    include_package_data=True,
+    zip_safe=False,
+    platforms='any',
     long_description=read("README.rst"),
     entry_points = {
         'console_scripts': [
-            'celerium = celery.manage:manager.run',
+            'celerium = celerium.__main__:main',
          ]
     },
     classifiers=[

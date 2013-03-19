@@ -1,0 +1,7 @@
+include MANIFEST.in
+include README.rst
+include requirements.txt
+recursive-include celerium/templates *.html
+recursive-include tests *
+recursive-exclude tests *.pyc
+recursive-exclude tests *.pyo
