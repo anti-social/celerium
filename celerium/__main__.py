@@ -15,7 +15,12 @@ manager = Manager(app)
 def events(project=None, frequency=10):
     from functools import partial
     from celery.app.base import Celery
-    from celery.bin.celeryev import EvCommand
+    try:
+        # celery 3.0
+        from celery.bin.celeryev import EvCommand
+    except ImportError:
+        # celery 3.1
+        from celery.bin.events import events as EvCommand
     from celerium.camera import Camera
 
     celery_app = Celery()
