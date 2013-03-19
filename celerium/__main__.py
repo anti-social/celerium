@@ -12,7 +12,7 @@ manager = Manager(app)
 
 
 @manager.command
-def events(project=None, frequency=10):
+def events(project=None, frequency=5):
     from functools import partial
     from celery.app.base import Celery
     try:
