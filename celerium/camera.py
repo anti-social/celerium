@@ -30,24 +30,14 @@ class Camera(Polaroid):
             # No new events since last snapshot
             return
 
-        # import pprint
-        # print "Workers: %s" % (pprint.pformat(state.workers, indent=4), )
-        # print "Tasks: %s" % (pprint.pformat(state.tasks, indent=4), )
-        # print "Total: %s events, %s tasks" % (
-        #     state.event_count, state.task_count)
-        # for worker in state.workers.values():
-        #     pprint.pprint(dict(worker))
-        # for task in state.tasks.values():
-        #     pprint.pprint(dict(task))
-
         if state.workers:
             worker_searcher.add(
-                map(partial(worker_searcher.generate_indexing_doc, project=self.project),
-                    state.workers.values()),
+                worker_searcher.generate_indexing_docs(state.workers.values(),
+                                                       project=self.project),
                 commit=False)
 
         if state.tasks:
             task_searcher.add(
-                map(partial(task_searcher.generate_indexing_doc, project=self.project),
-                    state.tasks.values()),
+                task_searcher.generate_indexing_docs(state.tasks.values(),
+                                                     project=self.project),
                 commit=False)

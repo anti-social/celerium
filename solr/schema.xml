@@ -113,7 +113,8 @@
    <!-- -->
    
 
-   <field name="worker" type="string" indexed="true" stored="true"/>
+   <field name="worker_id" type="string" indexed="true" stored="true"/>
+   <field name="worker_name" type="string" indexed="true" stored="true"/>
    <field name="module" type="string" indexed="true" stored="true"/>
    <field name="state" type="string" indexed="true" stored="true"/>
    <field name="timestamp" type="tdate" indexed="true" stored="true"/>

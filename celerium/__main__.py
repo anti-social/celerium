@@ -24,6 +24,8 @@ def events(project=None, frequency=5):
     from celerium.camera import Camera
 
     celery_app = Celery()
+    if not project:
+        project = app.config['CELERIUM_PROJECTS'][0]
     celery_app.conf.add_defaults(
         app.config['CELERIUM_PROJECT_CELERY_CONFIG'][project])
     command = EvCommand(app=celery_app)

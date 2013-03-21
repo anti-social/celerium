@@ -9,9 +9,21 @@ from celery.utils.timeutils import maybe_iso8601
 from .app import app
 
 
+SEP = ':'
+
 def try_fromtimestamp(timestamp):
     if timestamp:
        return datetime.fromtimestamp(timestamp)
+
+def get_project_and_name(worker, project=None):
+    if worker:
+        if SEP in worker.hostname:
+            return worker.hostname.split(SEP, 1)
+        return worker.hostname, project
+    return None, project
+
+def get_worker_id(project, name):
+    return u'%s%s%s' % (project, SEP, name)
 
 class Worker(_Worker):
     # increase expire_window cause 200 is too small
@@ -29,20 +41,26 @@ class WorkerDocument(Document):
             for timestamp in self.heartbeats:
                 self._instance.on_heartbeat(timestamp=timestamp)
         return self._instance
-    
+
 class WorkerSearcher(CommonSearcher):
     type_value = 'Worker'
     document_cls = WorkerDocument
     
     @classmethod
-    def generate_indexing_doc(cls, worker, project):
-        doc = dict(worker)
-        doc['id'] = u'%s:%s' % (project, worker.hostname)
-        doc['name'] = worker.hostname
-        doc['project'] = project
-        if worker.heartbeats:
-            doc['last_heartbeat'] = try_fromtimestamp(worker.heartbeats[-1])
-        return doc
+    def generate_indexing_docs(cls, workers, project=None):
+        docs = []
+        for worker in workers:
+            project, name = get_project_and_name(worker, project=project)
+            if project not in app.config['CELERIUM_PROJECTS']:
+                continue
+            doc = dict(worker)
+            doc['id'] = get_worker_id(project, name)
+            doc['project'] = project
+            doc['name'] = name
+            if worker.heartbeats:
+                doc['last_heartbeat'] = try_fromtimestamp(worker.heartbeats[-1])
+            docs.append(doc)
+        return docs
 
 
 class TaskSearcher(CommonSearcher):
@@ -55,19 +73,28 @@ class TaskSearcher(CommonSearcher):
         )
     
     @classmethod
-    def generate_indexing_doc(cls, task, project):
-        doc = dict(task)
-        doc['id'] = doc.pop('uuid')
-        doc['project'] = project
-        if doc['name'].find('.') != -1:
-            doc['module'] = '.'.join(doc['name'].split('.')[:-1])
-        for field in cls.timestamp_fields:
-            doc[field] = try_fromtimestamp(doc[field])
-        for field in cls.iso8601_fields:
-            doc[field] = maybe_iso8601(doc[field])
-        if doc['worker']:
-            doc['worker'] = doc['worker'].hostname
-        return doc
+    def generate_indexing_docs(cls, tasks, project=None):
+        docs = []
+        for task in tasks:
+            worker = task.worker
+            project, worker_name = get_project_and_name(worker, project=project)
+            if project not in app.config['CELERIUM_PROJECTS']:
+                continue
+            doc = dict(task)
+            doc.pop('worker', None)
+            doc['id'] = doc.pop('uuid')
+            doc['project'] = project
+            if doc['name'].find('.') != -1:
+                doc['module'] = '.'.join(doc['name'].split('.')[:-1])
+            for field in cls.timestamp_fields:
+                doc[field] = try_fromtimestamp(doc[field])
+            for field in cls.iso8601_fields:
+                doc[field] = maybe_iso8601(doc[field])
+            if worker:
+                doc['worker_id'] = get_worker_id(project, worker_name)
+                doc['worker_name'] = worker_name
+            docs.append(doc)
+        return docs
 
 
 worker_searcher = WorkerSearcher(app.config['CELERIUM_SOLR_URL'])

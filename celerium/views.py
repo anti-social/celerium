@@ -60,7 +60,7 @@ def tasks(project):
             fixed_dt = None
 
     qf = QueryFilter()
-    qf.add_filter(FacetFilter('worker', mincount=0))
+    qf.add_filter(FacetFilter('worker', 'worker_name', mincount=0))
     qf.add_filter(FacetFilter('state', mincount=0))
     qf.add_filter(FacetFilter('module', mincount=1))
     if 'module' in request.args:
