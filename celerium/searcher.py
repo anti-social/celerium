@@ -13,7 +13,7 @@ SEP = ':'
 
 def try_fromtimestamp(timestamp):
     if timestamp:
-       return datetime.fromtimestamp(timestamp)
+        return datetime.fromtimestamp(timestamp)
 
 def get_project_and_name(worker, project=None):
     if worker:
@@ -38,8 +38,9 @@ class WorkerDocument(Document):
     def instance(self):
         if not hasattr(self, '_instance'):
             self._instance = Worker(**self.to_solr())
-            for timestamp in self.heartbeats:
-                self._instance.on_heartbeat(timestamp=timestamp)
+            if self.heartbeats:
+                for timestamp in self.heartbeats:
+                    self._instance.on_heartbeat(timestamp=timestamp)
         return self._instance
 
 class WorkerSearcher(CommonSearcher):
